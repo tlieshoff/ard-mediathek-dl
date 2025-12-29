@@ -1,4 +1,5 @@
 import os
+import requests
 import subprocess
 from ard_mediathek_dl.ffmpeg import probe_duration
 from ard_mediathek_dl.logger import log_info, log_success, log_error
@@ -44,3 +45,20 @@ def download_stream(m3u8_url, output_path, debug=False):
 
     except FileNotFoundError:
         log_error("ffmpeg not found. Please install it.")
+
+def download_subtitle(subtitle_url, output_path):
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    log_info(f"Saving subtitle to: {output_path}")
+
+    try:
+        res = requests.get(subtitle_url, timeout=10)
+        res.raise_for_status()
+    except Exception as e:
+        log_error(f"Failed to download subtitle: {e}")
+        return
+
+    try:
+        with open(output_path, "w") as file:
+            file.write(res.text)
+    except OSError as e:
+        log_error(f"Unable to write subtitle to file: {e}")
