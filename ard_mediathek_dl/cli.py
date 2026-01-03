@@ -12,9 +12,9 @@ import sys
 import os
 import subprocess
 from os.path import join
-from ard_mediathek_dl.extractor import extract_m3u8_url, choose_variant, list_variants
-from ard_mediathek_dl.utils import extract_clean_slug, extract_air_date_from_url
-from ard_mediathek_dl.downloader import download_stream
+from ard_mediathek_dl.extractor import parse_page, extract_m3u8_url, choose_variant, list_variants, extract_subtitle_urls
+from ard_mediathek_dl.utils import extract_clean_slug, extract_air_date_from_url, extract_subtitle_name
+from ard_mediathek_dl.downloader import download_stream, download_subtitle
 from ard_mediathek_dl.logger import log_info, log_error, log_success
 
 def main():
@@ -26,6 +26,7 @@ def main():
     parser.add_argument("--quality", help="Choose quality (e.g. 720, 1080, best, worst)", default="best")
     parser.add_argument("--meta", action="store_true", help="Show metadata and stream variants")
     parser.add_argument("--download", action="store_true", help="Download selected stream")
+    parser.add_argument("--download-subtitles", action="store_true", help="Download subtitles (requires --download)")
     parser.add_argument("--stream", action="store_true", help="Stream in terminal using ffplay")
     parser.add_argument("--play", action="store_true", help="Open in default system player")
     parser.add_argument("--auto", action="store_true", help="Automatically select best quality")
@@ -59,7 +60,8 @@ def main():
         sys.exit(1)
 
     log_info("Starting ard_mediathek_dl...")
-    m3u8_master = extract_m3u8_url(args.url, args.debug)
+    soup = parse_page(args.url)
+    m3u8_master = extract_m3u8_url(soup, args.debug)
     if not m3u8_master:
         sys.exit(1)
 
@@ -115,6 +117,12 @@ def main():
         fullpath = join(outdir, filename)
 
         download_stream(selected_url, fullpath, args.debug)
+
+        if args.download_subtitles:
+            subtitle_urls = extract_subtitle_urls(soup, args.debug)
+            sub_dir = join(outdir, slug)
+            for sub_url in subtitle_urls:
+                download_subtitle(sub_url, join(sub_dir, extract_subtitle_name(sub_url)))
 
 if __name__ == "__main__":
     main()

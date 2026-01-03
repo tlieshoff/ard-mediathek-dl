@@ -14,3 +14,7 @@ def extract_clean_slug(url):
 def extract_air_date_from_url(url):
     match = re.search(r'(\d{4}-\d{2}-\d{2})', url)
     return match.group(1) if match else datetime.now().strftime("%Y-%m-%d")
+
+def extract_subtitle_name(url):
+    parts = urlparse(url).path.split("/")
+    return parts[-1]

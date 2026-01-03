@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from ard_mediathek_dl.logger import log_info, log_error, log_debug, log_warning
 
-def extract_m3u8_url(page_url, debug=False):
+def parse_page(page_url):
     log_info(f"Fetching ARD page: {page_url}")
     try:
         res = requests.get(page_url, timeout=10)
@@ -13,7 +13,9 @@ def extract_m3u8_url(page_url, debug=False):
         log_error(f"Failed to load page: {e}")
         return None
 
-    soup = BeautifulSoup(res.text, "html.parser")
+    return BeautifulSoup(res.text, "html.parser")
+
+def extract_m3u8_url(soup, debug=False):
     for script in soup.find_all("script"):
         if script.string and ".m3u8" in script.string:
             match = re.search(r'(https://[^\"\']+\.m3u8)', script.string)
@@ -74,3 +76,14 @@ def interactive_variant_choice(variants):
     except Exception:
         log_error("Invalid selection.")
         return None
+
+def extract_subtitle_urls(soup, debug=False):
+    for script in soup.find_all("script"):
+        if script.string and ".vtt" in script.string:
+            matches = re.findall(r'(https://[^\"\']+\.vtt)', script.string)
+            if matches:
+                log_debug(f"Found subtitles: {matches}", debug)
+                return matches
+
+    log_error("Could not find any .vtt links in page scripts.")
+    return []

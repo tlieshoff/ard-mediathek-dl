@@ -50,6 +50,7 @@ In addition to downloading, you can:
 - Use `--play` to open the stream in your system’s default video player
 - Add `--auto` to automatically download the best available quality
 - Use `--quality 720` (or 1080, best, worst) to manually pick a resolution
+- Use `--download-subtitles` to download available subtitles in addition to the video file (only works with `--download`)
 - Use `--debug` if you want to see detailed logs
 
 To get a full list of options and help:
@@ -61,14 +62,14 @@ ard-dl --help
 
 ## License
 
-This tool is open source and licensed under the MIT license.  
+This tool is open source and licensed under the MIT license.
 See the `LICENSE` file for details.
 
 
 ## Disclaimer
 
-This tool is intended solely for educational and archival purposes.  
-You can read the full disclaimer here:  
+This tool is intended solely for educational and archival purposes.
+You can read the full disclaimer here:
 [DISCLAIMER.md](https://github.com/tlieshoff/ard-mediathek-dl/blob/main/DISCLAIMER.md)
 
 This project is not affiliated with, endorsed by, or sponsored by ARD or any of its affiliates.
