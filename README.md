@@ -1,75 +1,248 @@
 # ard-mediathek-dl
 
-This is a small Python command-line tool I created to download videos from the ARD Mediathek. It works by extracting `.m3u8` HLS stream URLs from ARD video pages and then lets you choose a stream to download using `ffmpeg`.
+`ard-mediathek-dl` is a Python-based tool for downloading and managing **publicly available video content from the ARD Mediathek**.
 
-It doesn't bypass any DRM or login walls. It's meant only for publicly available content and is intended for educational, research, or archival purposes.
+It provides a command-line interface (CLI) for scripted and automated usage, as well as an optional local web interface for browsing, downloading, and watching content in a browser.
+
+The tool works by extracting `.m3u8` HLS stream URLs from ARD Mediathek video pages and downloading the streams using `ffmpeg`.
+
+It does **not** bypass DRM, authentication mechanisms, or paywalls and only operates on content that is accessible without login.
+
+
+## Background
+
+This project started as a small personal utility to better understand how ARD Mediathek delivers its content and to make it easier to archive publicly available videos for personal and educational use. A more detailed background and the motivation behind this project are described in this blog post: [https://blog.tobias-lieshoff.de/posts/2025-04-19-83992](https://blog.tobias-lieshoff.de/posts/2025-04-19-83992)
+
+
+## Scope and Intent
+
+This tool is intended for:
+
+* educational and technical exploration
+* research and experimentation
+* personal archiving of publicly available content
+
+It is **not** intended as a replacement for official ARD services or distribution platforms.
+
+
+## How It Works
+
+1. The CLI receives an ARD Mediathek video URL.
+2. The HTML page is fetched and parsed.
+3. Embedded `.m3u8` HLS playlist URLs are extracted.
+4. Available stream variants (resolutions) are detected.
+5. A stream is selected (manually or automatically).
+6. `ffmpeg` downloads and remuxes the stream into an `.mp4` file.
+7. Optional subtitle files (`.vtt`) are downloaded separately.
+
+When the web interface is enabled:
+
+* downloads run in the background
+* job status and progress are exposed via a local API
+* the web UI polls this API to display live progress
+* completed downloads appear automatically in the library view
+
+
+## Project Structure
+
+```
+ard_mediathek_dl/
+├── core/            Core extraction and download logic
+├── cli.py           Command-line interface entry point
+├── web/             Web dashboard (FastAPI)
+│   ├── app.py
+│   ├── services/    Job queue and library handling
+│   ├── templates/   HTML templates
+│   └── static/      CSS and JavaScript assets
+├── logger.py        Console logging utilities
+├── utils.py         URL and naming helpers
+└── tests/           Unit tests
+```
+
+Legacy top-level modules are retained as thin wrappers for backward compatibility but internally delegate to the `core` package.
+
+
+## Features
+
+### Command-Line Interface (CLI)
+
+* Download videos from ARD Mediathek URLs
+* Inspect available stream variants and resolutions
+* Select a specific quality or automatically choose the best available stream
+* Download subtitles in WebVTT (`.vtt`) format
+* Stream video directly in the terminal using `ffplay`
+* Open streams in the system’s default media player
+* Enable debug logging for troubleshooting
+* Run the web interface alongside CLI downloads
+
+### Web Interface
+
+* Local web dashboard with dark-mode layout
+* Overview of all downloaded videos
+* Search and filter the local library
+* In-browser video playback
+* Subtitle support during playback
+* Download form (URL, quality, subtitles)
+* Background download queue
+* Live progress reporting via API
+
+
+## Requirements
+
+### System Requirements
+
+* Python **3.10+**
+* `ffmpeg` and `ffprobe` installed and available on your `PATH`
+
+Install ffmpeg:
+
+**macOS (Homebrew)**
+
+```
+brew install ffmpeg
+```
+
+**Debian / Ubuntu**
+
+```
+sudo apt install ffmpeg
+```
+
+For other platforms, see:
+[https://ffmpeg.org/download.html](https://ffmpeg.org/download.html)
+
+### Python Dependencies
+
+All Python dependencies are defined in `requirements.txt`.
 
 
 ## Installation
 
-You’ll need Python 3.10 or newer, and `ffmpeg` must be installed and available in your system's path.
-
-To set it up:
-
-```bash
+```
 git clone https://github.com/tlieshoff/ard-mediathek-dl.git
 cd ard-mediathek-dl
-python3 -m venv venv
-source venv/bin/activate
+
+python3 -m venv .venv
+source .venv/bin/activate
+
 pip install -r requirements.txt
 pip install -e .
 ```
 
-Once installed, you can use the tool via the command `ard-dl`.
 
+## CLI Usage
 
-## How to use it
+### Download a video
 
-1. Go to the ARD Mediathek and open a video page (for example, a *Tatort* episode).
-2. Copy the full URL from your browser.
-3. Then run:
-
-```bash
-ard-dl "https://www.ardmediathek.de/video/..." --download
+```
+python -m ard_mediathek_dl.cli "https://www.ardmediathek.de/video/..." --download
 ```
 
-If you only want to see the available qualities (like 720p, 1080p, etc.), run:
+### Download with subtitles
 
-```bash
-ard-dl "https://www.ardmediathek.de/video/..." --meta
+```
+python -m ard_mediathek_dl.cli "https://www.ardmediathek.de/video/..." \
+  --download --download-subtitles
 ```
 
-It will show all available stream variants, and you can then choose which one to download.
+### Show available stream variants
+
+```
+python -m ard_mediathek_dl.cli "https://www.ardmediathek.de/video/..." --meta
+```
+
+### Automatically select best quality
+
+```
+python -m ard_mediathek_dl.cli "https://www.ardmediathek.de/video/..." \
+  --auto --download
+```
+
+### Stream directly in the terminal
+
+```
+python -m ard_mediathek_dl.cli "https://www.ardmediathek.de/video/..." --stream
+```
+
+### Open stream in system player
+
+```
+python -m ard_mediathek_dl.cli "https://www.ardmediathek.de/video/..." --play
+```
+
+### Enable debug logging
+
+```
+python -m ard_mediathek_dl.cli "https://www.ardmediathek.de/video/..." --debug
+```
 
 
-## Other available options
+## Web Interface
 
-In addition to downloading, you can:
+### Start the web dashboard
 
-- Use `--stream` to play the video directly in your terminal using `ffplay`
-- Use `--play` to open the stream in your system’s default video player
-- Add `--auto` to automatically download the best available quality
-- Use `--quality 720` (or 1080, best, worst) to manually pick a resolution
-- Use `--download-subtitles` to download available subtitles in addition to the video file (only works with `--download`)
-- Use `--debug` if you want to see detailed logs
+```
+python -m ard_mediathek_dl.cli --web
+```
 
-To get a full list of options and help:
+The interface is available at:
 
-```bash
-ard-dl --help
+```
+http://127.0.0.1:8080
+```
+
+### Start web dashboard and download in one run
+
+```
+python -m ard_mediathek_dl.cli \
+  "https://www.ardmediathek.de/video/..." \
+  --download --download-subtitles --web
+```
+
+The web interface starts immediately and remains available after the download finishes.
+
+
+## Download Structure
+
+Downloaded files are organized automatically:
+
+```
+downloads/
+  <series>/
+    <air-date>/
+      <episode>.mp4
+      <episode>/
+        <subtitle>.vtt
+```
+
+Example:
+
+```
+downloads/tatort/2026-01-09/nachtschatten.mp4
+```
+
+
+## Development and Testing
+
+Run unit tests:
+
+```
+pytest
+```
+
+Run syntax checks:
+
+```
+python -m compileall ard_mediathek_dl
 ```
 
 
 ## License
 
-This tool is open source and licensed under the MIT license.
+This project is licensed under the **MIT License**.
 See the `LICENSE` file for details.
 
 
 ## Disclaimer
 
-This tool is intended solely for educational and archival purposes.
-You can read the full disclaimer here:
-[DISCLAIMER.md](https://github.com/tlieshoff/ard-mediathek-dl/blob/main/DISCLAIMER.md)
-
-This project is not affiliated with, endorsed by, or sponsored by ARD or any of its affiliates.
+This tool is intended solely for educational and archival purposes. It must not be used to download, store, or redistribute copyrighted content without proper authorization from the rights holder. The author assumes no responsibility for misuse of this software. This project is not affiliated with, endorsed by, or sponsored by ARD or any of its affiliates.
