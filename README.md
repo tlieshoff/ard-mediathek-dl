@@ -129,6 +129,42 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
+## General Usage
+
+```
+usage: python -m ard_mediathek_dl [-h] [--quality QUALITY] [--meta] [--download]
+                                  [--download-subtitles] [--stream] [--play]
+                                  [--auto] [--debug] [--about]
+                                  [--web] [--host HOST] [--port PORT]
+                                  [--downloads-dir DOWNLOADS_DIR]
+                                  [url]
+
+ard_mediathek_dl – ARD video downloader CLI
+
+positional arguments:
+  url                   ARD video URL to download or stream
+
+options:
+  -h, --help            show this help message and exit
+  --quality QUALITY     Choose quality (e.g. 720, 1080, best, worst)
+  --meta                Show metadata and stream variants
+  --download            Download selected stream
+  --download-subtitles  Download subtitles (requires --download)
+  --stream              Stream in terminal using ffplay
+  --play                Open in default system player
+  --auto                Automatically select best quality
+  --debug               Enable debug logging
+  --about               Show tool info and exit
+  --web                 Start web dashboard (can be combined with --download)
+  --host HOST           Web host (with --web)
+  --port PORT           Web port (with --web)
+  --downloads-dir DOWNLOADS_DIR
+                        Downloads directory (with --web)
+
+Example:
+  python -m ard_mediathek_dl.cli https://www.ardmediathek.de/video/...
+```
+
 
 ## CLI Usage
 
