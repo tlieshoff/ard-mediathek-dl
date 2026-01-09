@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{% block title %}ard_mediathek_dl{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/app.css" />
+    {% block head %}{% endblock %}
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="topbar__left">
+          <a class="brand" href="/">
+            <span class="brand__dot"></span>
+            <span class="brand__name">ard_mediathek_dl</span>
+          </a>
+          <span class="pill">Dashboard</span>
+        </div>
+        <div class="topbar__right">
+          <span class="meta">Downloads: <code>{{ downloads_dir }}</code></span>
+        </div>
+      </header>
+
+      <main class="main">
+        {% block content %}{% endblock %}
+      </main>
+
+      <footer class="footer">
+        <span class="meta"></span>
+      </footer>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

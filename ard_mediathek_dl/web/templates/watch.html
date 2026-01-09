@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Watch • {{ item.title }}{% endblock %}
+
+{% block content %}
+  <section class="panel">
+    <div class="panel__header panel__header--stack">
+      <div class="breadcrumb">
+        <a class="link" href="/">Library</a>
+        <span class="breadcrumb__sep">/</span>
+        <span class="breadcrumb__current">{{ item.title }}</span>
+      </div>
+
+      <div class="watchHeader">
+        <div>
+          <h1 class="h1">{{ item.title }}</h1>
+          <div class="watchMeta">
+            <span class="tag">{{ item.series }}</span>
+            <span class="tag">{{ item.date }}</span>
+            <span class="tag">{{ item.sizeHuman }}</span>
+            <span class="tag">{{ item.mtimeHuman }}</span>
+            <span class="tag">{{ item.subtitleCount }} subs</span>
+          </div>
+        </div>
+        <div class="watchHeader__actions">
+          <a class="btn btn--ghost" href="/">Back</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="playerWrap">
+      <video id="player" class="player" controls preload="metadata">
+        <source src="{{ item.videoUrl }}" type="video/mp4" />
+        {% for s in item.subtitles %}
+          <track src="{{ s.url }}" kind="subtitles" srclang="de" label="{{ s.label }}" />
+        {% endfor %}
+        Your browser does not support the video tag.
+      </video>
+    </div>
+
+    {% if item.subtitles and (item.subtitles | length) > 0 %}
+      <div class="panel__section">
+        <h2 class="h2">Subtitles</h2>
+        <div class="subList">
+          {% for s in item.subtitles %}
+            <div class="subRow">
+              <span class="dot"></span>
+              <span class="subRow__name">{{ s.label }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

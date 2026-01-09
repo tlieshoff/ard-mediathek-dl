@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Home • ard_mediathek_dl{% endblock %}
+
+{% block content %}
+  <section class="grid">
+
+    <div class="panel">
+      <div class="panel__header">
+        <div>
+          <h1 class="h1">Home</h1>
+          <p class="subtle">Download from ARD Mediathek and watch locally.</p>
+        </div>
+      </div>
+
+      <div class="panel__section">
+        <h2 class="h2">Download</h2>
+
+        <div class="form">
+          <label class="label">Video URL</label>
+          <input id="dlUrl" class="input" type="url" placeholder="https://www.ardmediathek.de/video/..." />
+
+          <div class="formRow">
+            <div>
+              <label class="label">Quality</label>
+              <select id="dlQuality" class="select">
+                <option value="best">best</option>
+                <option value="1080">1080</option>
+                <option value="720">720</option>
+                <option value="worst">worst</option>
+              </select>
+            </div>
+
+            <div class="checks">
+              <label class="check">
+                <input id="dlAutoBest" type="checkbox" />
+                <span>auto-best</span>
+              </label>
+
+              <label class="check">
+                <input id="dlSubtitles" type="checkbox" checked />
+                <span>subtitles</span>
+              </label>
+            </div>
+
+            <div class="actions">
+              <button id="dlBtn" class="btn" type="button">Start download</button>
+            </div>
+          </div>
+
+          <p class="hint">Tip: paste URL, press “Start download”, then watch it once finished.</p>
+        </div>
+      </div>
+
+      <div class="panel__section">
+        <h2 class="h2">Jobs</h2>
+        <div id="jobsList" class="jobs"></div>
+      </div>
+    </div>
+
+
+    <div class="panel">
+      <div class="panel__header">
+        <div>
+          <h1 class="h1">Library</h1>
+          <p class="subtle">
+            Showing <strong id="countFiltered">{{ count_filtered }}</strong> of {{ count_total }} items
+          </p>
+        </div>
+
+        <div class="search">
+          <input
+            id="searchInput"
+            class="input"
+            type="search"
+            placeholder="Search title, series, date…"
+            value="{{ q }}"
+            autocomplete="off"
+          />
+          <button id="clearBtn" class="btn btn--ghost" type="button">Clear</button>
+        </div>
+      </div>
+
+      <div class="list" id="libraryList">
+        {% if not items %}
+          <div class="empty">
+            <div class="empty__title">No downloads found</div>
+            <div class="empty__text">Use the download box on the left.</div>
+          </div>
+        {% endif %}
+
+        {% for it in items %}
+          <article class="card" data-search="{{ (it.title ~ ' ' ~ it.series ~ ' ' ~ it.date ~ ' ' ~ it.id) | lower }}">
+            <div class="card__body">
+              <div class="card__title">{{ it.title }}</div>
+              <div class="card__meta">
+                <span class="tag">{{ it.series }}</span>
+                <span class="tag">{{ it.date }}</span>
+                <span class="tag">{{ it.sizeHuman }}</span>
+                <span class="tag">{{ it.mtimeHuman }}</span>
+                <span class="tag">{{ it.subtitleCount }} subs</span>
+              </div>
+            </div>
+            <div class="card__actions">
+              <a class="btn" href="{{ it.watchUrl }}">Watch</a>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <div id="toastRoot" class="toasts"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  window.__PAGE__ = {
+    initialQuery: {{ (q or "")|tojson }},
+  };
+</script>
+{% endblock %}
