@@ -1,7 +1,6 @@
 import subprocess
 from ard_mediathek_dl.logger import log_warning, log_debug
 
-
 def probe_duration(m3u8_url, debug=False):
     try:
         cmd = [

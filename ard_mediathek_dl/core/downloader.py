@@ -1,17 +1,14 @@
 import os
 import requests
 import subprocess
-
 from ard_mediathek_dl.ffmpeg import probe_duration
 from ard_mediathek_dl.logger import log_info, log_success, log_error
-
 
 def print_progress_bar(pct):
     bar_length = 40
     filled_length = int(bar_length * pct // 100)
     bar = '█' * filled_length + '-' * (bar_length - filled_length)
     print(f"\rDownloading |{bar}| {pct:.2f}% completed", end='', flush=True)
-
 
 def download_stream(m3u8_url, output_path, debug=False):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -48,7 +45,6 @@ def download_stream(m3u8_url, output_path, debug=False):
 
     except FileNotFoundError:
         log_error("ffmpeg not found. Please install it.")
-
 
 def download_subtitle(subtitle_url, output_path):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)

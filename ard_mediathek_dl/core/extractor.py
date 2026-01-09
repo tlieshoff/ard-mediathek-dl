@@ -2,9 +2,7 @@ import re
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
-
 from ard_mediathek_dl.logger import log_info, log_error, log_debug, log_warning
-
 
 def parse_page(page_url):
     log_info(f"Fetching ARD page: {page_url}")
@@ -17,7 +15,6 @@ def parse_page(page_url):
 
     return BeautifulSoup(res.text, "html.parser")
 
-
 def extract_m3u8_url(soup, debug=False):
     for script in soup.find_all("script"):
         if script.string and ".m3u8" in script.string:
@@ -28,7 +25,6 @@ def extract_m3u8_url(soup, debug=False):
 
     log_error("Could not find any .m3u8 link in page scripts.")
     return None
-
 
 def list_variants(master_url):
     try:
@@ -47,7 +43,6 @@ def list_variants(master_url):
     except Exception as e:
         log_error(f"Failed to load playlist: {e}")
         return []
-
 
 def choose_variant(master_url, quality="best", debug=False):
     variants = list_variants(master_url)
@@ -69,7 +64,6 @@ def choose_variant(master_url, quality="best", debug=False):
         log_warning(f"Requested quality '{quality}' not found, defaulting to best.")
         return variants_sorted[-1][1]
 
-
 def interactive_variant_choice(variants):
     print("[INFO] Available stream variants:")
     for idx, (res, uri) in enumerate(variants, 1):
@@ -82,7 +76,6 @@ def interactive_variant_choice(variants):
     except Exception:
         log_error("Invalid selection.")
         return None
-
 
 def extract_subtitle_urls(soup, debug=False):
     for script in soup.find_all("script"):
