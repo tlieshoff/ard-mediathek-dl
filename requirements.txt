@@ -7,7 +7,7 @@ pluggy==1.5.0
 pytest==8.3.5
 requests==2.32.3
 urllib3==2.4.0
-beautifulsoup
+beautifulsoup4
 fastapi
 uvicorn
 jinja2
