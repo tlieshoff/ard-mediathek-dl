@@ -62,9 +62,9 @@ def create_app(downloads_dir: str = "downloads") -> FastAPI:
         payload = [to_public_dict(it, downloads_dir) for it in filtered[:500]]
 
         return templates.TemplateResponse(
+            request,
             "index.html",
             {
-                "request": request,
                 "downloads_dir": downloads_dir,
                 "q": q,
                 "items": payload,
@@ -119,7 +119,7 @@ def create_app(downloads_dir: str = "downloads") -> FastAPI:
             raise HTTPException(status_code=404, detail="Not found")
 
         pub = to_public_dict(item, downloads_dir)
-        return templates.TemplateResponse("watch.html", {"request": request, "item": pub, "downloads_dir": downloads_dir})
+        return templates.TemplateResponse(request, "watch.html", {"item": pub, "downloads_dir": downloads_dir})
 
     @app.get("/media/{video_rel:path}")
     def media(video_rel: str):
